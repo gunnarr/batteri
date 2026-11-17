@@ -8,3 +8,9 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Hemligheter, loggar och cache
+.env
+*.log
+.pytest_cache/
+.ruff_cache/
