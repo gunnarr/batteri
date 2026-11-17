@@ -1,0 +1,23 @@
+# Tester på varje PR och push till main. Jobbet "Tester" är den obligatoriska checken
+# (nytt-repo batteri --krav-check Tester).
+name: Tester
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: tester-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tester:
+    name: Tester
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.3
+      - run: uv sync --locked
+      - run: uv run pytest

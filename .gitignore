@@ -1,0 +1,19 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Hemligheter, loggar och cache
+.env
+*.log
+.pytest_cache/
+.ruff_cache/
+
+# Projektinstruktioner för Claude – hålls utanför det publika repot
+CLAUDE.md

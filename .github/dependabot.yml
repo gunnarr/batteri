@@ -1,0 +1,30 @@
+version: 2
+updates:
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    # pyicloud hanterar Apple-lösenordet vid inloggning: vänta en vecka på nya
+    # versioner i stället för att ta dem samma dag som de släpps.
+    cooldown:
+      default-days: 7
+    groups:
+      security:
+        applies-to: security-updates
+        patterns: ["*"]
+      minor-and-patch:
+        applies-to: version-updates
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+
+  # Versionerna av actions i .github/workflows
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      actions:
+        patterns: ["*"]
