@@ -51,6 +51,7 @@ def test_fill_marks_stale_value_for_disconnected_device():
     [d] = fill_from_bluetooth([device("Mina AirPods")], parse_profiler(PROFILER))
     assert d.percent == 70 and not d.online
     assert status_text(d) == "V70 H85 etui100, senast känt"
+    assert (d.source, d.left, d.right, d.case) == ("bluetooth_last_known", 70, 85, 100)
 
 
 def test_fill_connected_device_counts_as_online():
@@ -63,6 +64,7 @@ def test_find_my_value_wins_and_unmatched_devices_are_untouched():
     other = device("Annan")
     out = fill_from_bluetooth([known, other], parse_profiler(PROFILER))
     assert out[0].percent == 30 and out[0].note == ""
+    assert out[0].source == "find_my" and out[0].left is None
     assert out[1].percent is None and status_text(out[1]) == "offline"
 
 
@@ -88,9 +90,9 @@ ACC_IOREG = [
 def test_accessories_are_matched_to_names_by_address():
     acc = parse_accessories(ACC_PROFILER, ACC_IOREG)
     assert acc == [
-        Accessory("Magic Mouse", "Mus", 44),
-        Accessory("Mitt tangentbord", "Tangentbord", 92),
-        Accessory("Bluetooth-tillbehör", "", 10),
+        Accessory("Magic Mouse", "Mus", 44, "Mouse"),
+        Accessory("Mitt tangentbord", "Tangentbord", 92, "Keyboard"),
+        Accessory("Bluetooth-tillbehör", "", 10, ""),
     ]
 
 
@@ -107,3 +109,4 @@ def test_add_accessories_appends_without_duplicating_find_my_devices():
     kb = out[1]
     assert (kb.percent, kb.model, kb.online) == (92, "Tangentbord", True)
     assert status_text(kb) == "via Bluetooth"
+    assert (kb.device_class, kb.source) == ("Keyboard", "bluetooth")

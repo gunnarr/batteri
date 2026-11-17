@@ -26,6 +26,12 @@ class Device:
     online: bool
     family: bool  # tillhör en familjemedlem, inte det egna kontot
     note: str = ""  # extra upplysning, t.ex. att värdet kommer från Macens Bluetooth
+    # Språkneutrala fält för program som läser --json (t.ex. menyradsappen):
+    device_class: str = ""  # Apples enhetsklass: iPhone, iPad, Watch, MacBookPro, Accessory, Keyboard …
+    source: str = "find_my"  # find_my | bluetooth | bluetooth_last_known
+    left: int | None = None  # AirPods: vänster, höger och etui var för sig
+    right: int | None = None
+    case: int | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -53,6 +59,7 @@ def parse_device(raw: dict[str, Any]) -> Device:
         low_power=bool(raw.get("lowPowerMode")),
         online=str(raw.get("deviceStatus")) == "200",
         family=bool(raw.get("prsId")),
+        device_class=str(raw.get("deviceClass") or ""),
     )
 
 
@@ -66,7 +73,16 @@ def fill_from_bluetooth(devices: Iterable[Device], bluetooth: dict[str, Bluetoot
         if d.percent is None and bt is not None and bt.percent is not None:
             source = "via Bluetooth" if bt.connected else "senast känt"
             note = ", ".join(p for p in (bt.detail, source) if p)
-            d = replace(d, percent=bt.percent, note=note, online=d.online or bt.connected)
+            d = replace(
+                d,
+                percent=bt.percent,
+                note=note,
+                online=d.online or bt.connected,
+                source="bluetooth" if bt.connected else "bluetooth_last_known",
+                left=bt.left,
+                right=bt.right,
+                case=bt.case,
+            )
         result.append(d)
     return result
 
@@ -78,7 +94,8 @@ def add_accessories(devices: Iterable[Device], accessories: Iterable[Accessory])
     for a in accessories:
         if a.name not in known:
             result.append(Device(name=a.name, model=a.kind, percent=a.percent, charging=False,
-                                 low_power=False, online=True, family=False, note="via Bluetooth"))
+                                 low_power=False, online=True, family=False, note="via Bluetooth",
+                                 device_class=a.device_class, source="bluetooth"))
     return result
 
 

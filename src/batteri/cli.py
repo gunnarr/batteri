@@ -15,6 +15,7 @@ from pathlib import Path
 from rich.console import Console
 
 from .bluetooth import read_local
+from .login import NEEDS_CODE, OK, LoginFlow, run_stdio
 from .settle import load_known_offline, save_known_offline, settle
 from .devices import add_accessories, build_table, fill_from_bluetooth, parse_device, sort_devices
 
@@ -55,15 +56,39 @@ def fail(message: str) -> int:
     return 1
 
 
-def cmd_login(args: argparse.Namespace) -> int:
-    from pyicloud import PyiCloudService
-    from pyicloud.exceptions import PyiCloudException
+NEEDS_LOGIN = 3  # slutkod när sessionen saknas eller gått ut (för program som anropar batteri)
 
-    apple_id = args.apple_id or load_apple_id() or input("Apple-ID (e-post): ").strip()
+LOGIN_ERRORS = {
+    "bad_credentials": "Fel Apple-ID eller lösenord.",
+    "security_key": "Kontot kräver säkerhetsnyckel, vilket batteri inte stöder.",
+    "unsupported_2sa": "Kontot använder äldre tvåstegsverifiering, vilket batteri inte stöder.",
+}
+
+
+def make_flow() -> LoginFlow:
+    def make_service(apple_id: str, password: str):
+        from pyicloud import PyiCloudService
+
+        return PyiCloudService(
+            apple_id,
+            password,
+            cookie_directory=str(session_dir()),
+            with_family=False,
+            refresh_interval=None,
+        )
+
+    return LoginFlow(make_service, save_apple_id)
+
+
+def cmd_login(args: argparse.Namespace) -> int:
+    if getattr(args, "stdio", False):
+        return run_stdio(make_flow(), sys.stdin, sys.stdout)
+
+    apple_id = getattr(args, "apple_id", None) or load_apple_id() or input("Apple-ID (e-post): ").strip()
     if not apple_id:
         return fail("Inget Apple-ID angivet.")
 
-    if args.op:
+    if getattr(args, "op", None):
         # Lösenordet hämtas direkt från 1Password och skrivs aldrig ut eller sparas.
         result = subprocess.run(["op", "read", args.op], capture_output=True, text=True)
         if result.returncode != 0:
@@ -72,31 +97,34 @@ def cmd_login(args: argparse.Namespace) -> int:
     else:
         password = getpass.getpass(f"Lösenord för {apple_id}: ")
 
-    try:
-        api = PyiCloudService(
-            apple_id,
-            password,
-            cookie_directory=str(session_dir()),
-            with_family=False,
-            refresh_interval=None,
-        )
-        if api.requires_2fa:
-            if api.security_key_names:
-                return fail("Kontot kräver säkerhetsnyckel, vilket batteri inte stöder.")
-            api.request_2fa_code()
-            code = input("Sexsiffrig kod från en av dina enheter: ").strip()
-            if not api.validate_2fa_code(code):
-                return fail("Koden godkändes inte.")
-            if not api.is_trusted_session and not api.trust_session():
-                err.print("[yellow]Sessionen kunde inte markeras som betrodd – du kan behöva logga in igen snart.[/yellow]")
-        elif api.requires_2sa:
-            return fail("Kontot använder äldre tvåstegsverifiering, vilket batteri inte stöder.")
-    except PyiCloudException as e:
-        return fail(f"Inloggningen misslyckades: {e}")
+    flow = make_flow()
+    with err.status("Loggar in …"):
+        result = flow.start(apple_id, password)
+    while result.state == NEEDS_CODE:
+        if result.code == "bad_code":
+            err.print("[yellow]Koden godkändes inte. En ny kod har skickats.[/yellow]")
+        code = input("Sexsiffrig kod från en av dina enheter: ").strip()
+        result = flow.submit_code(code)
+    if result.state != OK:
+        detail = LOGIN_ERRORS.get(result.code) or f"Inloggningen misslyckades: {result.message}"
+        return fail(detail)
 
-    save_apple_id(apple_id)
-    console.print("[green]Inloggad.[/green] Kör [bold]batteri[/bold] för att se batteristatus.")
+    console.print("[green]Inloggad.[/green]")
     return 0
+
+
+def needs_login(args: argparse.Namespace, reason: str) -> int:
+    """I ett terminalfönster går vi direkt vidare till inloggningen; annars slutkod 3."""
+    interactive = sys.stdin.isatty() and sys.stdout.isatty() and not (args.json or args.raw)
+    if not interactive or getattr(args, "_retried", False):
+        err.print(f"[red]{reason} Kör: batteri login[/red]")
+        return NEEDS_LOGIN
+    console.print(f"{reason} Loggar in mot iCloud – lösenordet sparas inte.")
+    status = cmd_login(argparse.Namespace())
+    if status != 0:
+        return status
+    args._retried = True
+    return cmd_show(args)
 
 
 def cmd_show(args: argparse.Namespace) -> int:
@@ -105,7 +133,7 @@ def cmd_show(args: argparse.Namespace) -> int:
 
     apple_id = load_apple_id()
     if not apple_id:
-        return fail("Inte inloggad än. Kör: batteri login")
+        return needs_login(args, "Du är inte inloggad än.")
 
     try:
         # authenticate=False + inget lösenord: visningen kan bara återanvända den
@@ -121,9 +149,9 @@ def cmd_show(args: argparse.Namespace) -> int:
         try:
             api.authenticate()
         except PyiCloudFailedLoginException:
-            return fail("Sessionen har gått ut. Kör: batteri login")
+            return needs_login(args, "Inloggningen har gått ut.")
         if api.requires_2fa or api.requires_2sa:
-            return fail("Sessionen har gått ut. Kör: batteri login")
+            return needs_login(args, "Inloggningen har gått ut.")
         manager = api.devices
 
         def snapshot() -> list[dict]:
@@ -169,6 +197,7 @@ def main(argv: list[str] | None = None) -> int:
     sub = parser.add_subparsers(dest="command")
     login = sub.add_parser("login", help="logga in på iCloud (behövs igen när sessionen gått ut)")
     login.add_argument("--apple-id", help="Apple-ID, om det inte redan är sparat")
+    login.add_argument("--stdio", action="store_true", help=argparse.SUPPRESS)
     login.add_argument("--op", metavar="REF", help="1Password-referens till lösenordet, t.ex. op://Personal/Apple/password")
 
     args = parser.parse_args(argv)

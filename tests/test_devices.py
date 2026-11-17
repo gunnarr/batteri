@@ -22,6 +22,7 @@ def test_parses_level_as_rounded_percent():
     d = make()
     assert (d.name, d.model, d.percent) == ("Min iPhone", "iPhone 16 Pro", 42)
     assert d.online and not d.charging and not d.family
+    assert d.device_class == "iPhone" and d.source == "find_my"
 
 
 def test_unknown_status_with_zero_level_means_no_reading():

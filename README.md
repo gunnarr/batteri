@@ -27,22 +27,16 @@ Du behöver en Mac och [uv](https://docs.astral.sh/uv/). Saknar du uv:
 brew install uv
 ```
 
-Installera och logga in:
+Installera och kör:
 
 ```
 uv tool install git+https://github.com/gunnarr/batteri
-batteri login
-```
-
-`batteri login` frågar efter ditt Apple-ID, ditt lösenord och den sexsiffriga kod som
-dyker upp på dina enheter. Kör det i ett vanligt terminalfönster. Sedan är det bara:
-
-```
 batteri
 ```
 
-Inloggningen håller en tid, sedan säger `batteri` till att det är dags att köra
-`batteri login` igen.
+Första gången frågar `batteri` efter ditt Apple-ID, ditt lösenord och den sexsiffriga kod
+som dyker upp på dina enheter, och visar sedan listan. Därefter räcker det att skriva
+`batteri`. När inloggningen så småningom gått ut frågar den igen.
 
 ## Kommandon
 
@@ -52,7 +46,7 @@ Inloggningen håller en tid, sedan säger `batteri` till att det är dags att k�
 | `batteri --familj` | Tar med familjemedlemmars enheter |
 | `batteri --json` | Samma uppgifter som JSON, för skript |
 | `batteri --raw` | Apples rådata, för felsökning (innehåller positioner) |
-| `batteri login` | Loggar in på iCloud |
+| `batteri login` | Loggar in på iCloud (sker annars automatiskt vid behov) |
 | `batteri login --op op://valv/objekt/password` | Läser lösenordet från 1Password i stället för att fråga |
 
 Uppdatera med `uv tool upgrade batteri`, avinstallera med `uv tool uninstall batteri`.

@@ -1,5 +1,13 @@
 # Ändringslogg
 
+## Ej släppt
+
+- `batteri` går direkt vidare till inloggningen när du inte är inloggad, i stället för att
+  be dig köra `batteri login`.
+- Fel kod vid inloggning ger en ny kod och ett nytt försök.
+- För program som anropar `batteri`: slutkod 3 när inloggning behövs, språkneutrala fält i
+  `--json` (`device_class`, `source`, `left`, `right`, `case`) och `batteri login --stdio`.
+
 ## 2026-11-17
 
 - Första versionen: `batteri` visar batterinivå för alla enheter på Apple-kontot, hämtat

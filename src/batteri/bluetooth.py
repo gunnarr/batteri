@@ -73,6 +73,7 @@ class Accessory:
     name: str
     kind: str
     percent: int
+    device_class: str = ""  # macOS egen benämning, oöversatt: Keyboard, Mouse …
 
 
 KINDS = {"Keyboard": "Tangentbord", "Mouse": "Mus", "Trackpad": "Styrplatta", "Headphones": "Hörlurar"}
@@ -110,7 +111,8 @@ def parse_accessories(profiler: dict[str, Any], ioreg: Any) -> list[Accessory]:
             continue
         key = _address(address)
         name, kind = names.get(key, ("Bluetooth-tillbehör", ""))
-        result[key] = Accessory(name=name, kind=KINDS.get(kind, kind), percent=max(0, min(100, percent)))
+        result[key] = Accessory(name=name, kind=KINDS.get(kind, kind), percent=max(0, min(100, percent)),
+                                device_class=kind)
     return list(result.values())
 
 
