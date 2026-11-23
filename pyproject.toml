@@ -5,7 +5,7 @@ description = "Batteristatus för alla enheter på Apple-kontot, från Hitta"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "pyicloud==2026.10.1",
+    "pyicloud==2026.11.2",
     "rich>=15.0.0",
 ]
 
