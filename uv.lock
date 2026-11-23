@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.11"
 
 [[package]]
@@ -36,7 +36,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "pyicloud", specifier = "==2026.10.1" },
+    { name = "pyicloud", specifier = "==2026.11.2" },
     { name = "rich", specifier = ">=15.0.0" },
 ]
 
@@ -401,7 +401,7 @@ name = "importlib-metadata"
 version = "10.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "lazy-importer", marker = "python_full_version < '3.15'" },
+    { name = "lazy-importer" },
     { name = "zipp" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/a6/91/0ef39e4ef4407de276289a3759977ac3a8cc546f59c55d725750eae3f41b/importlib_metadata-10.2.0.tar.gz", hash = "sha256:9413a2029fd9ca5669d27f1386071bbfe3c7ebca0545692ec975088241fe1d79", size = 72457, upload-time = "2026-11-09T19:09:10.915Z" }
@@ -737,7 +737,7 @@ wheels = [
 
 [[package]]
 name = "pyicloud"
-version = "2026.10.1"
+version = "2026.11.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "certifi" },
@@ -753,9 +753,9 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "tzlocal" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/9a/98/fdc494a41a49276f037fdff506f8bc26fbfa3aba3c3974f0327e903d7b00/pyicloud-2026.10.1.tar.gz", hash = "sha256:c0f6271279613cafa92f84920593f7184ebfb77e142bf72d709b62e302f58a94", size = 812734, upload-time = "2026-10-15T19:50:09.483Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a6/60/50431248af6263cea7d204f3cb5a093d26d44a237538852ee58c37d4fa69/pyicloud-2026.11.2.tar.gz", hash = "sha256:4f3e6fe8a20d97c6c320bdf3abb7cc01f624b189992a7fa32e77318d891b760f", size = 1394059, upload-time = "2026-11-13T16:53:25.734Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/8a/c8/6c2f20e9b29e31452e3c922f7a710164d8be4284d991f61117eef5b3d9a2/pyicloud-2026.10.1-py3-none-any.whl", hash = "sha256:4af2c84075d073ace350a68dde19837474b9c11ae3a5c2eca225e79db234e7f1", size = 346400, upload-time = "2026-10-15T19:50:07.718Z" },
+    { url = "https://files.pythonhosted.org/packages/50/f8/5db1d5b80aead7deafbbf6af70cd4e07c15a61dc9df7f618dac555688ddd/pyicloud-2026.11.2-py3-none-any.whl", hash = "sha256:725ce7eb2d8da2078d1f0a7457c52890cd289ea6adb1d4772984205c4a360bf0", size = 589958, upload-time = "2026-11-13T16:53:24.102Z" },
 ]
 
 [[package]]
@@ -886,14 +886,14 @@ wheels = [
 
 [[package]]
 name = "tzlocal"
-version = "5.3.1"
+version = "5.4.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "tzdata", marker = "sys_platform == 'win32'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/8b/2e/c14812d3d4d9cd1773c6be938f89e5735a1f11a9f184ac3639b93cef35d5/tzlocal-5.3.1.tar.gz", hash = "sha256:cceffc7edecefea1f595541dbd6e990cb1ea3d19bf01b2809f362a03dd7921fd", size = 30761, upload-time = "2025-03-05T21:17:41.549Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d8/89/2bd035df331499589fc92e59375c17c6cea6a500453b2c5f6a6ec9572825/tzlocal-5.4.5.tar.gz", hash = "sha256:ba976898bad27945178c9ca25c222c19e322b30c10342b9f40b46714f70d2d5f", size = 31483, upload-time = "2026-10-22T09:09:26.38Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c2/14/e2a54fabd4f08cd7af1c07030603c3356b74da07f7cc056e600436edfa17/tzlocal-5.3.1-py3-none-any.whl", hash = "sha256:eb1a66c3ef5847adf7a834f1be0800581b683b5608e74f86ecbcef8ab91bb85d", size = 18026, upload-time = "2025-03-05T21:17:39.857Z" },
+    { url = "https://files.pythonhosted.org/packages/7b/c1/9be4e1a8a30db8729a86628073910e56f85aaf8a659e053f376a2e6ea5a8/tzlocal-5.4.5-py3-none-any.whl", hash = "sha256:ecab534f6d65d9deb4c4ea52c121ab6dd5958e9b878e71dcb102578269752454", size = 18215, upload-time = "2026-10-22T09:09:24.447Z" },
 ]
 
 [[package]]
